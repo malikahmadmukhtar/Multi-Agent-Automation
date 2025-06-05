@@ -77,7 +77,7 @@ if agents_list and app and checkpointer:
             st.header("Upload your token")
             uploaded_file = st.file_uploader("Choose a JSON file", type="json")
         else:
-            st.success(f"Token file '{TOKEN_FILENAME}' already exists!")
+            # st.success(f"Token file '{TOKEN_FILENAME}' already exists!")
             uploaded_file = None  # Ensure uploaded_file is None if token exists
 
     # Main section shows result
@@ -90,8 +90,6 @@ if agents_list and app and checkpointer:
         with open(save_path, "wb") as f:
             f.write(uploaded_file.read())
 
-    elif token_exists:
-        st.success(f"Token file '{TOKEN_FILENAME}' is already present.")
 
     with st.sidebar:
         st.sidebar.subheader("Try asking me:")
