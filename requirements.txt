@@ -1,0 +1,14 @@
+python-dotenv
+google-auth-oauthlib
+google-api-python-client
+groq
+langchain
+langchain-community
+langchain-core
+langchain-google-genai
+langchain-groq
+langgraph
+langgraph-swarm
+pytz
+requests
+streamlit
