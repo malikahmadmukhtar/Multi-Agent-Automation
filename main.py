@@ -1,5 +1,3 @@
-import os
-
 import streamlit as st
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage, AIMessage
@@ -77,20 +75,6 @@ if agents_list and app and checkpointer:
                 * 🎨 Generate an image of a cat. 
                 ---
                 """)
-
-    with st.sidebar:
-        st.header("Upload your token")
-        uploaded_file = st.file_uploader("Choose a JSON file", type="json")
-
-    # Main section shows result
-    if uploaded_file is not None:
-        st.success(f"Uploaded file: {uploaded_file.name}")
-
-        # Save to project root
-        save_path = os.path.join(os.getcwd(), uploaded_file.name)
-
-        with open(save_path, "wb") as f:
-            f.write(uploaded_file.read())
 
     # Sidebar - Voice Mode Toggle (TTS only)
     st.session_state.voice_mode = st.sidebar.toggle("🔊 Voice Responses", value=st.session_state.voice_mode,
