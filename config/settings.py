@@ -5,8 +5,8 @@ load_dotenv()
 
 ## LLM to use
 # active_model = 'deepseek-r1-distill-llama-70b'
-# active_model = 'meta-llama/llama-4-scout-17b-16e-instruct'
-active_model = 'meta-llama/llama-4-maverick-17b-128e-instruct'
+active_model = 'meta-llama/llama-4-scout-17b-16e-instruct'
+# active_model = 'meta-llama/llama-4-maverick-17b-128e-instruct'
 # active_model = 'qwen-qwq-32b'
 # active_model = 'llama-3.3-70b-versatile'
 

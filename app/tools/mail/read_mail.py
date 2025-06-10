@@ -1,3 +1,5 @@
+import base64
+
 from langchain_core.tools import tool
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -68,20 +70,73 @@ def list_emails(limit: str, label_ids: list = None) -> list[str]:
             labelIds=label_ids
         ).execute()
 
+        # messages = results.get('messages', [])
+        # email_summaries = []
+        # for msg in messages:
+        #     msg_detail = service.users().messages().get(
+        #         userId='me',
+        #         id=msg['id'],
+        #         format='metadata',
+        #         metadataHeaders=['Subject', 'From','Content']
+        #     ).execute()
+        #     headers = msg_detail.get('payload', {}).get('headers', [])
+        #     subject = next((h['value'] for h in headers if h['name'] == 'Subject'), '(No Subject)')
+        #     sender = next((h['value'] for h in headers if h['name'] == 'From'), '(Unknown Sender)')
+        #     content = next((h['value'] for h in headers if h['name'] == 'Content'), '(Unknown Sender)')
+        #
+        #     email_summaries.append(f"From: {sender}\nSubject: {subject}\nContent: {content}")
+        # return email_summaries
+
         messages = results.get('messages', [])
         email_summaries = []
+
         for msg in messages:
             msg_detail = service.users().messages().get(
                 userId='me',
                 id=msg['id'],
-                format='metadata',
-                metadataHeaders=['Subject', 'From']
+                # Change format to 'full' to get the entire message payload, including the body
+                format='full'
             ).execute()
-            headers = msg_detail.get('payload', {}).get('headers', [])
+
+            payload = msg_detail.get('payload')
+            headers = payload.get('headers', [])
+
             subject = next((h['value'] for h in headers if h['name'] == 'Subject'), '(No Subject)')
             sender = next((h['value'] for h in headers if h['name'] == 'From'), '(Unknown Sender)')
-            email_summaries.append(f"From: {sender}\nSubject: {subject}")
+
+            email_body = ""
+            # Emails can have multiple parts (e.g., plain text, HTML, attachments)
+            parts = payload.get('parts')
+
+            if parts:
+                for part in parts:
+                    mime_type = part.get('mimeType')
+                    body = part.get('body')
+
+                    # Prioritize plain text content
+                    if mime_type == 'text/plain' and body and 'data' in body:
+                        data = body['data']
+                        decoded_bytes = base64.urlsafe_b64decode(data.encode('UTF-8'))
+                        email_body = decoded_bytes.decode('UTF-8')
+                        break  # We found the plain text body, no need to check further parts
+                    elif mime_type == 'text/html' and body and 'data' in body:
+                        # If no plain text, take the HTML. You might want to strip HTML tags later.
+                        data = body['data']
+                        decoded_bytes = base64.urlsafe_b64decode(data.encode('UTF-8'))
+                        email_body = decoded_bytes.decode('UTF-8')
+                        # Don't break here, in case there's a plain text version later in the parts
+            elif payload.get('body') and 'data' in payload['body']:
+                # Handle cases where the email body is directly in the payload (simpler emails)
+                data = payload['body']['data']
+                decoded_bytes = base64.urlsafe_b64decode(data.encode('UTF-8'))
+                email_body = decoded_bytes.decode('UTF-8')
+
+            email_summaries.append(f"From: {sender}\nSubject: {subject}\nContent: {email_body}")
+
         return email_summaries
+
+
+
     except HttpError as error:
         print(f'An error occurred: {error}')
         return [f'An error occurred: {error}']
