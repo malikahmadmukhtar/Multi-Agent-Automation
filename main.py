@@ -18,6 +18,10 @@ from config.settings import agent_image, user_image, active_model, MAX_PREVIOUS_
 # Load environment variables
 load_dotenv()
 
+os.environ["LANGSMITH_TRACING"] = os.getenv("LANGSMITH_TRACING")
+os.environ["LANGSMITH_API_KEY"] = os.getenv("LANGSMITH_API_KEY")
+os.environ["LANGSMITH_PROJECT"] = os.getenv("LANGSMITH_PROJECT")
+
 # Ensure the chat history directory exists on startup
 ensure_chat_history_dir_exists()
 
